@@ -1,0 +1,79 @@
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  padding: 0 24px;
+  background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%) !important;
+  color: #ffffff !important;
+  height: 64px;
+}
+
+.toolbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand-icon {
+  font-size: 26px;
+  width: 26px;
+  height: 26px;
+}
+
+.brand-title {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.brand-badge {
+  font-size: 11px;
+  font-weight: 600;
+  background-color: rgba(255, 255, 255, 0.2);
+  padding: 2px 8px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: rgba(255, 255, 255, 0.85) !important;
+  font-weight: 500;
+  border-radius: 8px;
+  padding: 0 16px;
+  height: 40px;
+  transition: all 0.2s ease;
+}
+
+.nav-btn:hover {
+  background-color: rgba(255, 255, 255, 0.15) !important;
+  color: #ffffff !important;
+}
+
+.active-nav-link {
+  background-color: rgba(255, 255, 255, 0.25) !important;
+  color: #ffffff !important;
+  font-weight: 600;
+}
+
+.main-content {
+  flex: 1;
+  background-color: #f8fafc;
+  padding-bottom: 40px;
+}
+

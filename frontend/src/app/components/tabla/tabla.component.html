@@ -1,0 +1,138 @@
+<div class="table-view-container">
+  <!-- Cabecera -->
+  <div class="table-header">
+    <div>
+      <h1 class="page-title">Registros Limpios y Enriquecidos</h1>
+      <p class="page-subtitle">Visualización tabular de los datos procesados por el script ETL almacenados en MySQL</p>
+    </div>
+    <button mat-stroked-button color="primary" (click)="cargarVentas()">
+      <mat-icon>refresh</mat-icon>
+      Recargar Tabla
+    </button>
+  </div>
+
+  <mat-card class="table-card">
+    <!-- Barra de Búsqueda y Filtros Rápidos -->
+    <div class="filters-bar">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Buscar por código, producto o departamento...</mat-label>
+        <mat-icon matPrefix>search</mat-icon>
+        <input matInput (keyup)="aplicarFiltro($event)" [value]="filtroActual()" placeholder="Ej: Laptop, TRX-0001, Electro">
+        <button *ngIf="filtroActual()" matSuffix mat-icon-button (click)="limpiarFiltro()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-form-field>
+
+      <div class="category-chips">
+        <span class="chips-label">Filtrar:</span>
+        <button mat-button class="chip-btn" [class.active]="filtroActual() === 'Tecnología'" (click)="filtrarPorCategoria('Tecnología')">Tecnología</button>
+        <button mat-button class="chip-btn" [class.active]="filtroActual() === 'Electro'" (click)="filtrarPorCategoria('Electro')">Electro</button>
+        <button mat-button class="chip-btn" [class.active]="filtroActual() === 'Calzado'" (click)="filtrarPorCategoria('Calzado')">Calzado</button>
+        <button mat-button class="chip-btn" [class.active]="filtroActual() === 'Hogar'" (click)="filtrarPorCategoria('Hogar')">Hogar</button>
+        <button mat-button class="chip-btn" [class.active]="filtroActual() === 'Ropa'" (click)="filtrarPorCategoria('Ropa')">Ropa</button>
+      </div>
+
+      <div class="badge-count">
+        <span>Total: <strong>{{ dataSource.filteredData.length }}</strong> de {{ totalRegistros() }} registros</span>
+      </div>
+    </div>
+
+    <!-- Barra de Carga -->
+    <mat-progress-bar *ngIf="loading()" mode="indeterminate"></mat-progress-bar>
+
+    <!-- Tabla de Angular Material (<table mat-table>) -->
+    <div class="table-responsive">
+      <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z1">
+
+        <!-- ID Transacción -->
+        <ng-container matColumnDef="id_transaccion">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>ID Ticket</th>
+          <td mat-cell *matCellDef="let row" class="font-mono text-bold">{{ row.id_transaccion }}</td>
+        </ng-container>
+
+        <!-- Categoría -->
+        <ng-container matColumnDef="categoria">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Departamento</th>
+          <td mat-cell *matCellDef="let row">
+            <span class="badge-cat" [ngClass]="obtenerClaseCategoria(row.categoria)">
+              {{ row.categoria }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Producto -->
+        <ng-container matColumnDef="producto">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Producto</th>
+          <td mat-cell *matCellDef="let row" class="product-cell">{{ row.producto }}</td>
+        </ng-container>
+
+        <!-- Cantidad -->
+        <ng-container matColumnDef="cantidad">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-center">Cant.</th>
+          <td mat-cell *matCellDef="let row" class="text-center">{{ row.cantidad }}</td>
+        </ng-container>
+
+        <!-- Precio Unitario -->
+        <ng-container matColumnDef="precio_unitario">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-right">Precio Unit. (S/)</th>
+          <td mat-cell *matCellDef="let row" class="text-right">S/ {{ row.precio_unitario | number:'1.2-2' }}</td>
+        </ng-container>
+
+        <!-- Fecha Venta -->
+        <ng-container matColumnDef="fecha_venta">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Fecha</th>
+          <td mat-cell *matCellDef="let row">{{ row.fecha_venta }}</td>
+        </ng-container>
+
+        <!-- Stock Actual -->
+        <ng-container matColumnDef="stock_actual">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-center">Stock</th>
+          <td mat-cell *matCellDef="let row" class="text-center">
+            <span class="stock-pill" [class.low-stock]="row.stock_actual < 15">
+              {{ row.stock_actual }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- CAMPO CALCULADO 1: Monto Total -->
+        <ng-container matColumnDef="monto_total">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-right th-calculated">
+            Monto Total (S/) *
+          </th>
+          <td mat-cell *matCellDef="let row" class="text-right font-bold text-primary">
+            S/ {{ row.monto_total | number:'1.2-2' }}
+          </td>
+        </ng-container>
+
+        <!-- CAMPO CALCULADO 2: IGV 18% -->
+        <ng-container matColumnDef="igv">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-right th-calculated">
+            IGV 18% (S/) *
+          </th>
+          <td mat-cell *matCellDef="let row" class="text-right font-bold text-orange">
+            S/ {{ row.igv | number:'1.2-2' }}
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="table-row"></tr>
+
+        <!-- Fila cuando no hay resultados de búsqueda -->
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell no-data-cell" [attr.colspan]="displayedColumns.length">
+            No se encontraron transacciones que coincidan con "{{ filtroActual() }}"
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- Paginador -->
+    <mat-paginator [pageSizeOptions]="[10, 25, 50, 100]" showFirstLastButtons aria-label="Seleccionar página">
+    </mat-paginator>
+
+    <div class="table-footnote">
+      <small>* <strong>Campos Calculados por el ETL:</strong> <em>monto_total</em> = (cantidad &times; precio_unitario) y <em>igv</em> = (monto_total &times; 0.18).</small>
+    </div>
+  </mat-card>
+</div>
+

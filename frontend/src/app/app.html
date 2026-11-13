@@ -1,0 +1,30 @@
+<div class="app-layout">
+  <!-- Barra de Navegación Superior (<mat-toolbar>) -->
+  <mat-toolbar color="primary" class="main-toolbar mat-elevation-z4">
+    <div class="toolbar-brand">
+      <span class="brand-title">Proyecto Final</span>
+    </div>
+
+    <span class="spacer"></span>
+
+    <!-- Menú de Navegación Global -->
+    <nav class="nav-links">
+      <a mat-button routerLink="/dashboard" routerLinkActive="active-nav-link" class="nav-btn">
+        <mat-icon>insights</mat-icon>
+        <span>Dashboard Analítico</span>
+      </a>
+
+      <a mat-button routerLink="/tabla" routerLinkActive="active-nav-link" class="nav-btn">
+        <mat-icon>table_chart</mat-icon>
+        <span>Tabla de Datos</span>
+      </a>
+    </nav>
+  </mat-toolbar>
+
+  <!-- Contenedor Principal de Vistas (<router-outlet>) -->
+  <main class="main-content">
+    <div class="content-container">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+</div>
